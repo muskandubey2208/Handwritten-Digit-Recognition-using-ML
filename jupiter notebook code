@@ -1,0 +1,63 @@
+Step 1
+
+!pip install tensorflow matplotlib numpy pandas
+
+step 2
+
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten
+
+# Load MNIST dataset
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize the images (scale pixel values to [0, 1])
+x_train = x_train.astype('float32') / 255
+x_test = x_test.astype('float32') / 255
+
+# Convert labels to one-hot encoding
+y_train = to_categorical(y_train, 10)
+y_test = to_categorical(y_test, 10)
+
+# Display a sample image
+plt.imshow(x_train[0], cmap='gray')
+plt.title(f"Label: {np.argmax(y_train[0])}")
+plt.show()
+
+
+step 3
+
+# Define a simple neural network
+model = Sequential([
+    Flatten(input_shape=(28, 28)),  # Flatten 28x28 images to a 1D vector
+    Dense(128, activation='relu'),  # Fully connected layer with 128 neurons
+    Dense(64, activation='relu'),   # Fully connected layer with 64 neurons
+    Dense(10, activation='softmax') # Output layer for 10 classes
+])
+
+# Compile the model
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+
+# Train the model
+history = model.fit(x_train, y_train, epochs=5, batch_size=32, validation_split=0.2)
+
+
+step 4
+
+# Evaluate on test data
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
+print(f"Test accuracy: {test_acc:.2f}")
+
+# Predict on a single test image
+sample_image = x_test[0]
+sample_label = y_test[0]
+prediction = np.argmax(model.predict(sample_image.reshape(1, 28, 28)))
+
+plt.imshow(sample_image, cmap='gray')
+plt.title(f"True Label: {np.argmax(sample_label)}, Predicted: {prediction}")
+plt.show()
